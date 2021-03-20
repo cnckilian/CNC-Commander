@@ -5,17 +5,6 @@ import re
 from datetime import datetime
 from time import time
 
-new_entry = []
-start = 0
-end = 0
-directory = ""
-project = ""
-usage_type = "?"
-person = "?"
-
-path_bbctrllog='/var/log/bbctrl.log'
-path_userlog='/home/bbmc/cnc-commander/user.log'
-
 
 # ==============================================================================
 # Main program function
@@ -25,8 +14,17 @@ def main():
     
     print("CNC-Commander V0.1")
     
-    # precompiled regex parsers
-    p_user = re.compile(r'^(?:USER:)\s*(\S*)\s*(\S*)$')
+    new_entry = []
+    start = 0
+    end = 0
+    directory = ""
+    project = ""
+    usage_type = "?"
+    person = "?"
+    path_bbctrllog='/var/log/bbctrl.log'
+    path_userlog='/home/bbmc/cnc-commander/user.log'
+    path_bbctrllog='data/bbctrl.log'
+    path_userlog='data/user.log'
     
     # While-loop to catch the situation of renamed log files
     while True:
@@ -34,10 +32,8 @@ def main():
             # Loop over the tailing entries in the log file
             for new_entry in tail_logfile(path_bbctrllog):
                 try:
-                    m_user = p_user.match(new_entry)
-                    if m_user is not None:
-                        person     = m_user[1]
-                        usage_type = m_user[2]
+                    if new_entry[:5] == 'USER:':
+                        _, person, usage_type = new_entry.split()
                     elif (new_entry[:25] == "I:Planner:GCode:./upload/"):
                         project = new_entry[25:-4]
                     elif (new_entry[:21] == 'I:Planner:Program End' or new_entry[:21] == 'I:Planner:Program Sto'):
